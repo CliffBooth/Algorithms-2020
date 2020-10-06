@@ -5,6 +5,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static java.lang.StrictMath.abs;
+
 @SuppressWarnings("unused")
 public class JavaTasks {
     /**
@@ -39,14 +41,14 @@ public class JavaTasks {
      */
     //time = O(n*log(n))
     //memory: O(n)
-    static public void sortTimes(String inputName, String outputName) {
+    static public void sortTimes(String inputName, String outputName) throws IOException {
         List<Integer> toSort = new ArrayList<>();
         Map<Integer, String> map = new TreeMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(inputName));
              Writer writer = new FileWriter(outputName)) {
             String string = reader.readLine();
             while (string != null) {
-                if (!string.matches("\\d{2}:\\d{2}:\\d{2}\\s(AM|PM)")) {
+                if (!string.matches("(0\\d|1[0-2]):[0-5]\\d:[0-5]\\d\\s(AM|PM)")) {
                     throw new IllegalArgumentException();
                 }
                 String[] strings = string.split(":");
@@ -63,8 +65,6 @@ public class JavaTasks {
             for (int value : toSort) {
                 writer.write(map.get(value) + System.lineSeparator());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -96,7 +96,7 @@ public class JavaTasks {
      */
     //time: O(n*log(n))
     //memory: O(n)
-    static public void sortAddresses(String inputName, String outputName) {
+    static public void sortAddresses(String inputName, String outputName) throws IOException {
         Map<String, List<String>> map = new TreeMap<>((o1, o2) -> {
             String street1 = o1.split(" ")[0];
             String street2 = o2.split(" ")[0];
@@ -131,8 +131,6 @@ public class JavaTasks {
                 }
                 writer.write(System.lineSeparator());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -166,23 +164,29 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    //time: O(n*log(n))
+    //time: O(n)
     //memory: O(n)
-    static public void sortTemperatures(String inputName, String outputName) {
-        List<Double> list = new ArrayList<>();
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
+        int min = 2730;
+        int limit = 2730 + 5000 + 1;
+        int[] temperatures = new int[limit];
         try (BufferedReader reader = new BufferedReader(new FileReader(inputName));
              Writer writer = new FileWriter(outputName)) {
             String line = reader.readLine();
             while (line != null) {
-                list.add(Double.parseDouble(line));
+                temperatures[(int) (Double.parseDouble(line) * 10 + min)]++;
                 line = reader.readLine();
             }
-            Collections.sort(list);
-            for (double t : list) {
-                writer.write(t + System.lineSeparator());
+            for (int i = 0; i < limit; i++) {
+                if (temperatures[i] == 0)
+                    continue;
+                int t = i - min;
+                for (int j = 0; j < temperatures[i]; j++) {
+                    if (t < 0)
+                        writer.write("-");
+                    writer.write(abs(t / 10) + "." + abs(t % 10) + System.lineSeparator());
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -217,7 +221,7 @@ public class JavaTasks {
      */
     //time: O(n)
     //memory: O(n)
-    static public void sortSequence(String inputName, String outputName) {
+    static public void sortSequence(String inputName, String outputName) throws IOException {
         Map<Integer, Integer> map = new HashMap<>();
         List<Integer> numbers = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(inputName));
@@ -243,8 +247,6 @@ public class JavaTasks {
                     writer.write(number + System.lineSeparator());
             for (int i = 0; i < maxCounter; i++)
                 writer.write(min + System.lineSeparator());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -262,10 +264,17 @@ public class JavaTasks {
      * <p>
      * Результат: second = [1 3 4 9 9 13 15 20 23 28]
      */
-    //time: O(n*log(n))
+    //time: O(second.length)
     //memory: O(1)
     static <T extends Comparable<T>> void mergeArrays(T[] first, T[] second) {
-        System.arraycopy(first, 0, second, 0, first.length);
-        Arrays.sort(second);
+        int fi = 0;
+        int si = first.length;
+        for (int i = 0; i < second.length; i++) {
+            if (fi < first.length && (si == second.length || first[fi].compareTo(second[si]) < 0)) {
+                second[i] = first[fi++];
+            } else {
+                second[i] = second[si++];
+            }
+        }
     }
 }
