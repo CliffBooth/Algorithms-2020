@@ -122,6 +122,9 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("Initial set: $controlSet")
             val binarySet = create()
+
+            assertFalse(binarySet.remove(toRemove))
+
             for (element in controlSet) {
                 binarySet += element
             }
@@ -179,6 +182,11 @@ abstract class AbstractBinarySearchTreeTest {
                 binarySet.iterator().hasNext(),
                 "Iterator of an empty tree should not have any next elements."
             )
+
+            assertFailsWith<NoSuchElementException> {
+                binarySet.iterator().next()
+            }
+
             for (element in controlSet) {
                 binarySet += element
             }
@@ -200,7 +208,7 @@ abstract class AbstractBinarySearchTreeTest {
                     "BinarySearchTreeIterator doesn't traverse the tree correctly."
                 )
             }
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 binaryIter.next()
             }
             println("All clear!")
