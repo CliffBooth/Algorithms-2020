@@ -1,7 +1,7 @@
 package lesson4;
 
 import java.util.*;
-import kotlin.NotImplementedError;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,16 +84,64 @@ public class Trie extends AbstractSet<String> implements Set<String> {
 
     /**
      * Итератор для префиксного дерева
-     *
+     * <p>
      * Спецификация: {@link Iterator} (Ctrl+Click по Iterator)
-     *
+     * <p>
      * Сложная
      */
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator();
+    }
+
+    public class TrieIterator implements Iterator<String> {
+        private List<String> wordList;
+        private int index;
+        private String current;
+
+        //space: O(n)
+        private TrieIterator() {
+            if (root == null)
+                return;
+            wordList = new ArrayList<>();
+            index = 0;
+            addToList(root, "");
+        }
+
+        private void addToList(Node node, String word) {
+            for (char ch : node.children.keySet()) {
+                if (ch == (char) 0)
+                    wordList.add(word);
+                else
+                    addToList(node.children.get(ch), word + ch);
+            }
+        }
+
+        //time: O(1)
+        @Override
+        public boolean hasNext() {
+            return index < wordList.size();
+        }
+
+       //time: O(1)
+        @Override
+        public String next() {
+            if (index >= wordList.size())
+                throw new NoSuchElementException();
+            current = wordList.get(index);
+            index++;
+            return current;
+        }
+
+        //time: O(maxLength)
+        @Override
+        public void remove() {
+            if (current == null)
+                throw new IllegalStateException();
+            Trie.this.remove(current);
+            current = null;
+        }
     }
 
 }
