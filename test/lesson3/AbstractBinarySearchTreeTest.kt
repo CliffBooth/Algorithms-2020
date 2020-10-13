@@ -217,6 +217,11 @@ abstract class AbstractBinarySearchTreeTest {
 
     protected fun doIteratorRemoveTest() {
         implementationTest { create().iterator().remove() }
+
+        assertFailsWith<IllegalStateException> {
+            create().iterator().remove()
+        }
+
         val random = Random()
         for (iteration in 1..100) {
             val controlSet = TreeSet<Int>()

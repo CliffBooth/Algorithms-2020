@@ -148,8 +148,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
-        Deque<Node<T>> stack;
-        Node<T> current;
+        private Deque<Node<T>> stack;
+        private Node<T> current;
 
         //space: O(log(n))
         private BinarySearchTreeIterator() {
