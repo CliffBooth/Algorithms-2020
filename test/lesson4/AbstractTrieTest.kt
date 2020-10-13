@@ -74,7 +74,7 @@ abstract class AbstractTrieTest {
         val random = Random()
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
-            for (i in 1..7) {
+            for (i in 1..15) {
                 val string = random.nextString("abcdefgh", 1, 15)
                 controlSet.add(string)
             }
