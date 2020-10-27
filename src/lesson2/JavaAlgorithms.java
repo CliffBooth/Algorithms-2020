@@ -37,7 +37,7 @@ public class JavaAlgorithms {
      */
     //time: O(n)
     //memory: O(n)
-    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) {
+    static public Pair<Integer, Integer> optimizeBuyAndSell(String inputName) throws IOException {
         List<Integer> delta = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(inputName))) {
             String line = reader.readLine();
@@ -47,8 +47,6 @@ public class JavaAlgorithms {
                 line = line2;
                 line2 = reader.readLine();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         int maxSum = 0;
         int currentSum = 0;

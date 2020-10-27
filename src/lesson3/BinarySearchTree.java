@@ -98,13 +98,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     //time: O(log(n))
     //space: O(1)
+    boolean elementFound;
+
     @Override
     public boolean remove(Object o) {
-        if (!contains(o))
-            return false;
+        elementFound = false;
         @SuppressWarnings("unchecked")
         T t = (T) o;
         root = remove(root, t);
+        if (!elementFound) {
+            return false;
+        }
         size--;
         return true;
     }
@@ -118,6 +122,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         else if (comparison > 0)
             node.right = remove(node.right, value);
         else {
+            elementFound = true;
             if (node.left == null)
                 return node.right;
             if (node.right == null)
@@ -150,16 +155,21 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     public class BinarySearchTreeIterator implements Iterator<T> {
         private Deque<Node<T>> stack;
         private Node<T> current;
+        private Deque<Node<T>> parents;
+        private Node<T> parent;
 
         //space: O(log(n))
         private BinarySearchTreeIterator() {
             stack = new ArrayDeque<>();
+            parents = new ArrayDeque<>();
             fillStack(root);
         }
 
         private void fillStack(Node<T> root) {
             while (root != null) {
                 stack.push(root);
+                if (root.left != null)
+                    parents.push(root);
                 root = root.left;
             }
         }
@@ -196,11 +206,13 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         //time: average case: O(1); worst case: O(n)
         @Override
         public T next() {
-            Node<T> topMost = stack.pop();
-            current = topMost;
-            if (topMost.right != null)
-                fillStack(topMost.right);
-            return topMost.value;
+            current = stack.pop();
+            parent = parents.poll();
+            if (current.right != null) {
+                parents.push(current);
+                fillStack(current.right);
+            }
+            return current.value;
         }
 
         /**
@@ -215,13 +227,22 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * <p>
          * Сложная
          */
-        //time: O(log(n))
+        //time: O(1)
         @Override
         public void remove() {
             if (current == null)
                 throw new IllegalStateException();
-            BinarySearchTree.this.remove(current.value);
+            if (parent == null)
+                root = BinarySearchTree.this.remove(root, current.value);
+            else {
+                int comparison = current.value.compareTo(parent.value);
+                if (comparison > 0)
+                    parent.right = BinarySearchTree.this.remove(parent.right, current.value);
+                else
+                    parent.left = BinarySearchTree.this.remove(parent.left, current.value);
+            }
             current = null;
+            size--;
         }
     }
 
