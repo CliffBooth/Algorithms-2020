@@ -1,13 +1,18 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
+
+    private static class Removed {
+    }
+
+    private final Removed removed = new Removed();
 
     private final int bits;
 
@@ -54,10 +59,10 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     /**
      * Добавление элемента в таблицу.
-     *
+     * <p>
      * Не делает ничего и возвращает false, если такой же элемент уже есть в таблице.
      * В противном случае вставляет элемент в таблицу и возвращает true.
-     *
+     * <p>
      * Бросает исключение (IllegalStateException) в случае переполнения таблицы.
      * Обычно Set не предполагает ограничения на размер и подобных контрактов,
      * но в данном случае это было введено для упрощения кода.
@@ -67,7 +72,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != removed) {
             if (current.equals(t)) {
                 return false;
             }
@@ -84,34 +89,89 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     /**
      * Удаление элемента из таблицы
-     *
+     * <p>
      * Если элемент есть в таблица, функция удаляет его из дерева и возвращает true.
      * В ином случае функция оставляет множество нетронутым и возвращает false.
      * Высота дерева не должна увеличиться в результате удаления.
-     *
+     * <p>
      * Спецификация: {@link Set#remove(Object)} (Ctrl+Click по remove)
-     *
+     * <p>
      * Средняя
      */
+    //memory: O(1)
+    //time: O(1/(1-A))
+    //A = n/capacity
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        if (!contains(o))
+            return false;
+        int index = startingIndex(o);
+        while (!storage[index].equals(o)) {
+            index = (index + 1) % capacity;
+        }
+        storage[index] = removed;
+        size--;
+        return true;
     }
 
     /**
      * Создание итератора для обхода таблицы
-     *
+     * <p>
      * Не забываем, что итератор должен поддерживать функции next(), hasNext(),
      * и опционально функцию remove()
-     *
+     * <p>
      * Спецификация: {@link Iterator} (Ctrl+Click по Iterator)
-     *
+     * <p>
      * Средняя (сложная, если поддержан и remove тоже)
      */
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        private int index;
+        private int iterated;
+        private Object current;
+        private final int numberOfElements;
+
+        //memory: O(1)
+        public OpenAddressingSetIterator() {
+            index = -1;
+            iterated = 0;
+            numberOfElements = size;
+        }
+
+        //time: O(1)
+        @Override
+        public boolean hasNext() {
+            return iterated < numberOfElements;
+        }
+
+        //time: O(1/(1-A))
+        //A = n/capacity
+        @Override
+        public T next() {
+            if (iterated == numberOfElements)
+                throw new NoSuchElementException();
+            current = storage[++index];
+            while (current == removed || current == null) {
+                index++;
+                current = storage[index];
+            }
+            iterated++;
+            return (T) current;
+        }
+
+        //time: O(1)
+        @Override
+        public void remove() {
+            if (current == null)
+                throw new IllegalStateException();
+            storage[index] = removed;
+            size--;
+            current = null;
+        }
     }
 }

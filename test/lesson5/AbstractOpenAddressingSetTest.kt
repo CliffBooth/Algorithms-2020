@@ -2,6 +2,7 @@ package lesson5
 
 import ru.spbstu.kotlin.generate.util.nextString
 import java.util.*
+import kotlin.NoSuchElementException
 import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -47,6 +48,9 @@ abstract class AbstractOpenAddressingSetTest {
             for (i in 1..50) {
                 val firstInt = random.nextInt(32)
                 val secondInt = firstInt + (1 shl bitsNumber)
+
+                assertFalse(openAddressingSet.remove(secondInt))
+
                 openAddressingSet += secondInt
                 openAddressingSet += firstInt
                 val expectedSize = openAddressingSet.size - 1
@@ -92,6 +96,11 @@ abstract class AbstractOpenAddressingSetTest {
                 openAddressingSet.iterator().hasNext(),
                 "Iterator of an empty set should not have any next elements."
             )
+
+            assertFailsWith<NoSuchElementException> {
+                openAddressingSet.iterator().next()
+            }
+
             for (element in controlSet) {
                 openAddressingSet += element
             }
@@ -113,7 +122,7 @@ abstract class AbstractOpenAddressingSetTest {
                 controlSet.isEmpty(),
                 "OpenAddressingSetIterator doesn't traverse the entire set."
             )
-            assertFailsWith<IllegalStateException>("Something was supposedly returned after the elements ended") {
+            assertFailsWith<NoSuchElementException>("Something was supposedly returned after the elements ended") {
                 openAddressingSetIter.next()
             }
             println("All clear!")
@@ -151,6 +160,11 @@ abstract class AbstractOpenAddressingSetTest {
                 counter--
                 if (element == toRemove) {
                     iterator.remove()
+
+                    assertFailsWith<IllegalStateException> {
+                        iterator.remove()
+                    }
+
                 }
             }
             assertEquals(
