@@ -121,6 +121,30 @@ abstract class AbstractGraphTests {
         }.build()
         val loop3 = graph3.findEulerLoop()
         loop3.assert(shouldExist = false, graph = graph3)
+
+        //  A--B  A1--B1
+        //  |  |  |   |
+        //  C--D  C1--D1
+        val unconnected2 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val a1 = addVertex("A1")
+            val b1 = addVertex("B1")
+            val c1 = addVertex("C1")
+            val d1 = addVertex("D1")
+            addConnection(a, b)
+            addConnection(a, c)
+            addConnection(b, d)
+            addConnection(c, d)
+            addConnection(a1, b1)
+            addConnection(a1, c1)
+            addConnection(b1, d1)
+            addConnection(c1, d1)
+        }.build()
+        val unconnectedLoop2 = unconnected2.findEulerLoop()
+        unconnectedLoop2.assert(shouldExist = false, graph = unconnected2)
     }
 
     fun minimumSpanningTree(minimumSpanningTree: Graph.() -> Graph) {
@@ -181,6 +205,50 @@ abstract class AbstractGraphTests {
         val tree3 = graph3.minimumSpanningTree()
         assertEquals(4, tree3.edges.size)
         assertEquals(4, tree3.findBridges().size)
+
+        //  A--B
+        //  |\/|
+        //  |/\|
+        //  C--D
+        val graph4 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            addConnection(a, b)
+            addConnection(a, c)
+            addConnection(a, d)
+            addConnection(b, c)
+            addConnection(b, d)
+            addConnection(c, d)
+        }.build()
+        val tree4 = graph4.minimumSpanningTree()
+        assertEquals(3, tree4.edges.size)
+        assertEquals(3, tree4.findBridges().size)
+
+        //  A---B
+        //  |\ /|
+        //  | E |
+        //  |/ \|
+        //  C---D
+        val graph5 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            addConnection(a, b)
+            addConnection(a, c)
+            addConnection(a, e)
+            addConnection(b, e)
+            addConnection(b, d)
+            addConnection(c, e)
+            addConnection(c, d)
+            addConnection(d, e)
+        }.build()
+        val tree5 = graph5.minimumSpanningTree()
+        assertEquals(4, tree5.edges.size)
+        assertEquals(4, tree5.findBridges().size)
     }
 
     fun largestIndependentVertexSet(largestIndependentVertexSet: Graph.() -> Set<Graph.Vertex>) {
@@ -351,6 +419,36 @@ abstract class AbstractGraphTests {
         }.build()
         val longestPath3 = graph3.longestSimplePath()
         assertEquals(6, longestPath3.length)
+
+        //  A--B  A1--B1--E1--F1
+        //  |  |  |   |
+        //  C--D  C1--D1--G1
+        val graph4 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val a1 = addVertex("A1")
+            val b1 = addVertex("B1")
+            val c1 = addVertex("C1")
+            val d1 = addVertex("D1")
+            val e1 = addVertex("E1")
+            val f1 = addVertex("F1")
+            val g1 = addVertex("G1")
+            addConnection(a, b)
+            addConnection(b, d)
+            addConnection(d, c)
+            addConnection(c, a)
+            addConnection(a1, b1)
+            addConnection(b1, d1)
+            addConnection(d1, c1)
+            addConnection(c1, a1)
+            addConnection(e1, b1)
+            addConnection(e1, f1)
+            addConnection(d1, g1)
+        }.build()
+        val longestPath4 = graph4.longestSimplePath()
+        assertEquals(6, longestPath4.length)
     }
 
     fun baldaSearcher(baldaSearcher: (String, Set<String>) -> Set<String>) {
