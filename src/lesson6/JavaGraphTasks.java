@@ -97,8 +97,8 @@ public class JavaGraphTasks {
      * |
      * J ------------ K
      */
-    //time: O(V+E)
-    //memory: O(V)
+    //time: O(E)
+    //memory: O(V+E)
     public static Graph minimumSpanningTree(Graph graph) {
         GraphBuilder result = new GraphBuilder();
         Set<Graph.Vertex> visitedVertices = new HashSet<>();
